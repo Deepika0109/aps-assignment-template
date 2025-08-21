@@ -8,6 +8,8 @@ import io.ktor.server.engine.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
+import org.example.boilerplate.errors.ApiError
+import org.example.boilerplate.errors.ValidationException
 import org.example.boilerplate.logging.LoggerFactory
 import org.example.boilerplate.logging.create
 import java.util.concurrent.atomic.AtomicBoolean
@@ -41,12 +43,14 @@ object Server {
                     }
 
                     install(StatusPages) {
-                        exception<Throwable> { call, cause ->
-                            // You'd obviously never want to do this in production, but it helps with development as the entire
-                            // stacktrace is returned to the client when an uncaught exception occurs.
-                            call.respondText(
-                                text = cause.stackTraceToString(),
-                                status = HttpStatusCode.InternalServerError
+                        exception<ValidationException> { call, ex ->
+                            call.respond(ex.status, ex.body)
+                        }
+                        exception<Throwable> { call, ex ->
+                            call.application.environment.log.error("Unhandled error", ex)
+                            call.respond(
+                                HttpStatusCode.InternalServerError,
+                                ApiError("internal_error", "Something went wrong. Please try again.")
                             )
                         }
                     }

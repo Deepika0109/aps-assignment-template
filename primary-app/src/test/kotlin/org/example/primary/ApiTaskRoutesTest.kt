@@ -20,7 +20,7 @@ class ApiTaskRoutesTest {
 
     private fun Application.installWith(service: TaskService) {
         install(ContentNegotiation) { jackson() }   // same JSON plugin as prod
-        installTaskRoutes(service)                  // <- your routing from Application.kt
+        installTaskRoutes(service)                  // routing from Application.kt
     }
 
     @Test
@@ -40,7 +40,7 @@ class ApiTaskRoutesTest {
         }
 
         application {
-            installWith(service)   // block form; returns Unit (correct)
+            installWith(service)   //  returns Unit
         }
 
         val res = client.post("/api/v2/task") {

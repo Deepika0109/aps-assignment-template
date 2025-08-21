@@ -7,4 +7,3 @@ CREATE TABLE IF NOT EXISTS outbox_events (
   published BOOLEAN NOT NULL DEFAULT FALSE,
   published_at VARCHAR(64) NULL
 );
-sn

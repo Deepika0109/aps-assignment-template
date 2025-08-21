@@ -21,7 +21,7 @@ dependencies {
     implementation(group = "io.ktor", name = "ktor-server-cio-jvm", ktorVersion)
     implementation(group = "io.ktor", name = "ktor-server-content-negotiation", ktorVersion)
     implementation(group = "io.ktor", name = "ktor-serialization-jackson", ktorVersion)
-    implementation(group = "io.ktor", name = "ktor-server-status-pages", ktorVersion)
+    api(group = "io.ktor", name = "ktor-server-status-pages", ktorVersion)
 
 
     val exposed = "0.52.0"

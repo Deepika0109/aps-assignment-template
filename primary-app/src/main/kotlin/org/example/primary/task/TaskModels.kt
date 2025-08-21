@@ -1,5 +1,7 @@
 package org.example.primary.task
 
+import org.example.boilerplate.errors.FieldError
+import org.example.boilerplate.errors.ValidationException
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeParseException
@@ -39,14 +41,34 @@ data class UpdateTask(
 )
 
 fun CreateTask.validate(): CreateTask {
-    if (name.isNullOrBlank()) throw IllegalArgumentException("name is required and cannot be blank")
-    if (due_date != null) parseInstantOrNull(due_date) // throws for bad format
+    val errors = mutableListOf<FieldError>()
+
+    if (name.isNullOrBlank()) {
+        errors += FieldError("name", "required_non_blank")
+    }
+    if (due_date != null && parseInstantOrNull(due_date) == null) {
+        errors += FieldError("due_date", "invalid_iso8601", "Use e.g. 2025-12-31T10:00:00Z")
+    }
+    if (errors.isNotEmpty()) throw ValidationException(errors)
     return this
 }
 
 fun UpdateTask.validate(): UpdateTask {
-    if (name != null && name.isBlank()) throw IllegalArgumentException("name cannot be blank")
-    if (due_date != null) parseInstantOrNull(due_date)
+    val errors = mutableListOf<FieldError>()
+
+    if (name != null && name.isBlank()) {
+        errors += FieldError("name", "required_non_blank_if_present")
+    }
+    if (due_date != null && parseInstantOrNull(due_date) == null) {
+        errors += FieldError("due_date", "invalid_iso8601", "Use e.g. 2025-12-31T10:00:00Z")
+    }
+    assignees?.let {
+        // If provided, must have both keys (even if the lists are empty)
+        if (it.add == null || it.rem == null) {
+            errors += FieldError("assignees", "patch_must_contain_add_and_rem")
+        }
+    }
+    if (errors.isNotEmpty()) throw ValidationException(errors)
     return this
 }
 
